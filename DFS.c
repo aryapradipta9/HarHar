@@ -38,24 +38,21 @@ void FindGreen()
 	while(true)
   {
   	 // sensor sees light:
-    if(getColorName(colorSensor) == colorWhite)
-    {
+    if (getColorName(colorSensor) == colorBlack){
+    	motor[leftMotor]  = 55;
+    	motor[rightMotor] = -15;
+  	}
+    else{
+    	if(getColorName(colorSensor) == colorWhite){
       // counter-steer right:
-      motor[leftMotor]  = -15;
-      motor[rightMotor] = 55;
-
-    }
-    else if ((getColorName(colorSensor) == colorGreen)||(getColorName(colorSensor) == colorYellow)||(getColorName(colorSensor) == colorRed)){
-    	motor[leftMotor] = 0;
-    	motor[rightMotor] = 0;
-    	break;
-    }
-    // sensor sees dark:
-    else
-    {
-      // counter-steer left:
-      motor[leftMotor]  = 55;
-      motor[rightMotor] = -15;
+      	motor[leftMotor]  = -15;
+     		motor[rightMotor] = 55;
+			}
+			else if((getColorName(colorSensor) == colorGreen)||(getColorName(colorSensor) == colorYellow)||(getColorName(colorSensor) == colorRed)){
+    		motor[leftMotor] = 0;
+    		motor[rightMotor] = 0;
+    		break;
+    	}
     }
   }
 }
@@ -88,9 +85,12 @@ void pulang()
 }
 
 void putar(int *adakiri, int *adakanan, int *adatengah){
-  *adakiri = 0;
-  *adatengah = 0;
-  *adakanan = 0;
+  int kiri, kanan, tengah;
+	kiri = 0;
+  tengah = 0;
+  kanan = 0;
+
+  int jumlahcabang = 0;
   // asumsi semua 90 derajat
 	backward(0.3);
 	int g1 = getGyroDegrees(gyroSensor);
@@ -99,26 +99,33 @@ void putar(int *adakiri, int *adakanan, int *adatengah){
 		setMotorSpeed(rightMotor,-20);
 	}
 	g1 = getGyroDegrees(gyroSensor);
-	while(getGyroDegrees(gyroSensor) > (g1-360)){
-		if(getGyroDegrees(gyroSensor) == (g1 - 90)){
-			if(getColorName(gyroSensor) == colorBlack){
-				*adakanan = 1;
+	int g2 = g1;
+	while(g2 > (g1-360)){
+		// tambahin range pencarian
+		g2 = getGyroDegrees(gyroSensor);
+		if((getGyroDegrees(gyroSensor) < (g1 - 40))&&(getGyroDegrees(gyroSensor) > (g1 - 90))){
+			if(getColorName(colorSensor) == colorBlack){
+				kanan = 1;
 			}
 		}
-		if(getGyroDegrees(gyroSensor) == (g1 - 180)){
-			if(getColorName(gyroSensor) == colorBlack){
-				*adatengah = 1;
+		if((getGyroDegrees(gyroSensor) < (g1 - 140))&&(getGyroDegrees(gyroSensor) > (g1 - 180))){
+			if(getColorName(colorSensor) == colorBlack){
+				tengah = 1;
 			}
 		}
-		if(getGyroDegrees(gyroSensor) == (g1 - 270)){
-			if(getColorName(gyroSensor) == colorBlack){
-				*adakiri = 1;
+		if((getGyroDegrees(gyroSensor) < (g1 - 200))&&(getGyroDegrees(gyroSensor) > (g1 - 280))){
+			if(getColorName(colorSensor) == colorBlack){
+				kiri = 1;
 			}
 		}
 		setMotorSpeed(leftMotor,20);
 		setMotorSpeed(rightMotor,50);
 	}
 	g1 = getGyroDegrees(gyroSensor);
+	jumlahcabang = kiri + kanan + tengah;
+	*adakiri = kiri;
+	*adakanan = kanan;
+	*adatengah = tengah;
 	while (getGyroDegrees(gyroSensor) > (g1 - 90)){
 		setMotorSpeed(leftMotor,-20);
 		setMotorSpeed(rightMotor,20);
@@ -200,7 +207,6 @@ void DFS(){
 	else if (getColorName(colorSensor) == colorYellow){
 		found = 1;
 		// panggil pulang
-		pulang();
 	}
 }
 
@@ -255,12 +261,14 @@ void DFStipu(){
 	// jika hijau
 	FindGreen();
 	if (getColorName(colorSensor) == colorGreen){
-		int kiri, kanan, tengah, banyakcabang;
+		int kiri, kanan, tengah, banyakcabang, temp, temp2, temp3;
 		putar(&kiri, &kanan, &tengah);
 		//dapat angka banyaknya cabang
 		banyakcabang = kiri + kanan + tengah;
 		tipu[destination] = banyakcabang;
 		// cari tempat kosong, assign sebagai tempat tujuan
+		temp = startpoint;
+		temp2 = destination;
 		startpoint = destination;
 		while(tipu[destination] != 99){
 			destination++;
@@ -272,11 +280,27 @@ void DFStipu(){
 			tipu[i] = -1;
 		}
 		turn1();
+		temp3 = startpoint;
 		for(i=1;i<=banyakcabang;i++){
 			// belok kiri
-
-			DFStipu();
-			destination = destination + 1;
+			if (found == 0){
+				startpoint = temp3;
+				DFStipu();
+				destination = destination + 1;
+			}
+			else{
+				break;
+			}
+		}
+		if (found==1){
+			pulangtipu();
+		}
+		else{
+			startpoint = temp2;
+			destination = temp;
+			FindGreen();
+			backward(0.3);
+			turn1();
 		}
 	}
 	// jika merah
@@ -298,12 +322,13 @@ void DFStipu(){
 	}
 	// jika kuning
 	else if (getColorName(colorSensor) == colorYellow){
-		pulangtipu();
+		found = 1;
 	}
 }
 
 task main()
 {
+	displayTextLine(1,"DFS");
 	introtipu();
 	startpoint = 0;
 	destination = 1;
