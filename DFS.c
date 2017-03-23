@@ -262,6 +262,7 @@ void DFStipu(){
 		if (found == 0){
 			startpoint = temp2;
 			destination = temp;
+			tipu[destination] = tipu[destination] - 1;
 			FindGreen();
 			backward(0.5);
 			turn1();
@@ -269,6 +270,7 @@ void DFStipu(){
 		else{
 			arrjalan[idxarrjalan] = destination;
 			idxarrjalan++;
+			sleep(3000);
 			if (tipu[destination] == 1){
 				turn1();
 			}else if (tipu[destination] == 2){
@@ -312,7 +314,6 @@ void DFStipu(){
 		startpoint = destination;
 		destination = temp;
 		// tuker dest sama startpoint, tipu[destination] = tipu[destination] - 1
-		tipu[destination] = tipu[destination] - 1;
 		FindGreen();
 	}
 }
