@@ -327,7 +327,13 @@ task main()
 	DFStipu();
 	int i;
 	for (i=0; i<idxarrjalan; i++){
-		displayTextLine(idxarrjalan-i+1,"ll");
+		if (tipu[arrjalan[i]] == 1){
+			displayTextLine(idxarrjalan-i,"1");
+		}else if (tipu[arrjalan[i]] == 2){
+			displayTextLine(idxarrjalan-i,"2");
+		}else if (tipu[arrjalan[i]] == 3){
+			displayTextLine(idxarrjalan-i,"3");
+		}
 	}
 	while(true)
 	{
