@@ -4,6 +4,8 @@ int destination;
 int startpoint;
 int found = 0;
 int tipu[15];
+int arrjalan[15];
+int idxarrjalan;
 
 void intro()
 {
@@ -25,6 +27,7 @@ void intro()
   		break;
   	}
 	}
+	forward(0.3);
 }
 
 void FindGreen()
@@ -42,7 +45,7 @@ void FindGreen()
       	motor[leftMotor]  = -15;
      		motor[rightMotor] = 55;
 			}
-			else if((getColorName(colorSensor) == colorGreen)||(getColorName(colorSensor) == colorYellow)||(getColorName(colorSensor) == colorRed)){
+			else if((getColorName(colorSensor) == colorBlue)||(getColorName(colorSensor) == colorGreen)||(getColorName(colorSensor) == colorYellow)||(getColorName(colorSensor) == colorRed)){
     		motor[leftMotor] = 0;
     		motor[rightMotor] = 0;
     		break;
@@ -103,7 +106,7 @@ void putar(int *adakiri, int *adakanan, int *adatengah){
 void turn1(){
 	// posisi sudah di backward
 	int g1 = getGyroDegrees(gyroSensor);
-	while (getGyroDegrees(gyroSensor) > (g1 - 90)){
+	while (getGyroDegrees(gyroSensor) > (g1 - 50)){
 		setMotorSpeed(leftMotor,-20);
 		setMotorSpeed(rightMotor,20);
 	}
@@ -125,6 +128,34 @@ void turn1(){
 	setMotorSpeed(rightMotor,0);
 }
 
+void turn2(){
+	// posisi sudah di backward
+	int g1 = getGyroDegrees(gyroSensor);
+	while (getGyroDegrees(gyroSensor) > (g1 - 50)){
+		setMotorSpeed(leftMotor,-20);
+		setMotorSpeed(rightMotor,20);
+	}
+	while (getColorName(colorSensor) != colorWhite){
+		setMotorSpeed(leftMotor,50);
+		setMotorSpeed(rightMotor,25);
+	}
+	// warna putih
+	while (getColorName(colorSensor) != colorBlack){
+		setMotorSpeed(leftMotor,50);
+		setMotorSpeed(rightMotor,25);
+	}
+	while (getColorName(colorSensor) != colorWhite){
+		setMotorSpeed(leftMotor,50);
+		setMotorSpeed(rightMotor,25);
+	}
+	while (getColorName(colorSensor) != colorBlack){
+		setMotorSpeed(leftMotor,50);
+		setMotorSpeed(rightMotor,25);
+	}
+	// set break
+	setMotorSpeed(leftMotor,0);
+	setMotorSpeed(rightMotor,0);
+}
 
 void turn3(){
 	// posisi sudah di backward
@@ -221,18 +252,37 @@ void DFStipu(){
 			// belok kiri
 			if (found == 0){
 				startpoint = temp3;
+				destination = temp4 + i - 1;
 				DFStipu();
-				destination = temp4 + i;
 			}
 			else{
 				break;
 			}
 		}
-		startpoint = temp2;
-		destination = temp;
-		FindGreen();
-		backward(0.3);
-		turn1();
+		if (found == 0){
+			startpoint = temp2;
+			destination = temp;
+			FindGreen();
+			backward(0.5);
+			turn1();
+		}
+		else{
+			arrjalan[idxarrjalan] = destination;
+			idxarrjalan++;
+			if (tipu[destination] == 1){
+				turn1();
+			}else if (tipu[destination] == 2){
+				turn2();
+			}else if (tipu[destination] == 3){
+				turn3();
+			}
+			startpoint = destination;
+			destination--;
+			while(tipu[destination] <= 0){
+				destination--;
+			}
+			FindGreen();
+		}
 	}
 	// jika merah
 	else 	if (getColorName(colorSensor) == colorRed){
@@ -254,7 +304,15 @@ void DFStipu(){
 	// jika kuning
 	else if (getColorName(colorSensor) == colorYellow){
 		found = 1;
+		displayTextLine(1,"Api telah dipadamkan");
+		tipu[destination] = 0;
 		putar180();
+		int temp;
+		temp = startpoint;
+		startpoint = destination;
+		destination = temp;
+		// tuker dest sama startpoint, tipu[destination] = tipu[destination] - 1
+		tipu[destination] = tipu[destination] - 1;
 		FindGreen();
 	}
 }
@@ -265,7 +323,12 @@ task main()
 	introtipu();
 	startpoint = 0;
 	destination = 1;
+	idxarrjalan = 0;
 	DFStipu();
+	int i;
+	for (i=0; i<idxarrjalan; i++){
+		displayTextLine(idxarrjalan-i+1,"ll");
+	}
 	while(true)
 	{
 		setMotorSpeed(leftMotor,0);
