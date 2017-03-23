@@ -52,6 +52,7 @@ void CreateTree (Tree *T){
 		SetTreeEl(T,E,i);
 	}
 	SetTreeEl2(T,0,0,0,0,1,0,1);
+	Visited((*T).Elm[1]) = 1;
 }
 
 void AlokNode(ElTree *X){
@@ -77,17 +78,35 @@ void DealokNode (ElTree *X){
 
 //pindah" node
 void MoveToParent (Tree T, ElTree *anak){
-	*anak = T.Elm[Bapak(*anak)];	
+	int temp;
+	temp = Bapak(*anak);	
+	Bapak(*anak) = Bapak(T.Elm[temp]);
+	Anak1(*anak) = Anak1(T.Elm[temp]);
+	Anak2(*anak) = Anak2(T.Elm[temp]);
+	Anak3(*anak) = Anak3(T.Elm[temp]);
+	AnakKe(*anak) = AnakKe(T.Elm[temp]);
+	JmlAnak(*anak) = JmlAnak(T.Elm[temp]);
+	Alamat(*anak) = Alamat(T.Elm[temp]);
+	Visited(*anak) = Visited(T.Elm[temp]);
 }
 
 void GoToChild(Tree T, ElTree *N, int anakke){
-	if(anakke==1){
-		*N = T.Elm[Anak1(*N)];
-	}else if(anakke==2){
-		*N = T.Elm[Anak2(*N)];
-	}else{//anakke == 3
-		*N = T.Elm[Anak3(*N)];
+	int temp;
+	if((anakke==1)&&(Anak1(*N)!=0)){
+		temp = Anak1(*N);
+	}else if((anakke==2)&&(Anak2(*N)!=0)){
+		temp = Anak2(*N);
+	}else if((anakke==3)&&(Anak3(*N)!=0)){//anakke == 3
+		temp = Anak3(*N);
 	}
+	Bapak(*N) = Bapak(T.Elm[temp]);
+	Anak1(*N) = Anak1(T.Elm[temp]);
+	Anak2(*N) = Anak2(T.Elm[temp]);
+	Anak3(*N) = Anak3(T.Elm[temp]);
+	AnakKe(*N) = AnakKe(T.Elm[temp]);
+	JmlAnak(*N) = JmlAnak(T.Elm[temp]);
+	Alamat(*N) = Alamat(T.Elm[temp]);
+	Visited(*N) = Visited(T.Elm[temp]);
 }
 /*
 ElTree GetTreeEl(Tree T, int idx){
@@ -118,11 +137,15 @@ void AddAnak(Tree *T, ElTree *ElBapak, int anakke){
 		SetTreeEl2(T,Bapak(*ElBapak),0,0,0,anakke,0,i);
 		if(anakke==1){
 			Anak1(*ElBapak) = i;
+			Anak1((*T).Elm[Alamat(*ElBapak)]) = i;
 		}else if(anakke==2){
 			Anak2(*ElBapak) = i;
+			Anak2((*T).Elm[Alamat(*ElBapak)]) = i;
 		}else{//anakke == 3
 			Anak3(*ElBapak) = i;
+			Anak3((*T).Elm[Alamat(*ElBapak)]) = i;
 		}
+		Bapak((*T).Elm[i]) = Alamat(*ElBapak);
 	}
 }
 #endif
