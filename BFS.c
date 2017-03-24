@@ -15,6 +15,7 @@ void putar180();//putar di tempat
 void FindPoint();
 void BFS(int Level, ElTree *E, int *Fire);
 void turn1();
+void pulang();
 Tree T;
 ElTree El;
 int it;
@@ -43,6 +44,12 @@ task main()
 		//displayTextLine()
 		i++;
 		it++;
+		if(it>=4){
+			turn1();
+		}
+	}
+	if(fire==1){
+		pulang();
 	}
 }
 
@@ -196,7 +203,7 @@ void BFS(int Level, ElTree *E, int *Fire){
 			}else if(isYellow()){
 			*Fire = 1;
 			putar180();
-			displayTextLine(1,"Cari Intersection");
+			displayTextLine(1,"Api telah dipadamkan");
 			FindPoint();
 			}else if(isBlue()){
 			setMotorSpeed(leftMotor,0);
@@ -288,7 +295,11 @@ void BFS(int Level, ElTree *E, int *Fire){
 						BFS(Level,E,Fire);
 
 						MoveToParent(T,E);
-					}
+					}/*
+					if(Anak2(*E)==0 || Anak3(*E)==0){
+						int d,e,f,g;
+						putar(&d,&e,&f,&g);
+					}*/
 				}
 			}
 		}
@@ -319,4 +330,52 @@ void turn1(){
 	// set break
 	setMotorSpeed(leftMotor,0);
 	setMotorSpeed(rightMotor,0);
+}
+
+void pulang(){
+	FindPoint();
+	backward(0.3);
+	turn1();
+	FindPoint();
+	turn1();
+	while (getColorName(colorSensor) != colorBlack){
+		setMotorSpeed(leftMotor,50);
+		setMotorSpeed(rightMotor,25);
+	}
+	// set break
+	while (getColorName(colorSensor) != colorWhite){
+		setMotorSpeed(leftMotor,50);
+		setMotorSpeed(rightMotor,25);
+	}
+	while (getColorName(colorSensor) != colorBlack){
+		setMotorSpeed(leftMotor,50);
+		setMotorSpeed(rightMotor,25);
+	}
+	while (getColorName(colorSensor) != colorWhite){
+		setMotorSpeed(leftMotor,25);
+		setMotorSpeed(rightMotor,25);
+	}
+	setMotorSpeed(leftMotor,0);
+	setMotorSpeed(rightMotor,0);
+
+	while(true)
+	{
+		// sensor sees light:
+		if (getColorName(colorSensor) == colorBlack){
+			motor[leftMotor]  = 55;
+			motor[rightMotor] = -15;
+		}
+		else{
+			if(getColorName(colorSensor) == colorWhite){
+				// counter-steer right:
+				motor[leftMotor]  = -15;
+				motor[rightMotor] = 55;
+			}
+			else if(getColorName(colorSensor) == colorBlue){
+				motor[leftMotor] = 0;
+				motor[rightMotor] = 0;
+				break;
+			}
+		}
+	}
 }
