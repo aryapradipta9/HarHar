@@ -35,11 +35,12 @@ task main()
 	AnakKe(El) = AnakKe(T.Elm[1]);
 	JmlAnak(El) = JmlAnak(T.Elm[1]);
 	Alamat(El) = Alamat(T.Elm[1]);
+	Visited(El) = Alamat(T.Elm[1]);
 	it = 1;
-	int i=1;
+	int i=2;
 	while(fire==0){
 		BFS(i,&El,&fire);
-	  //displayTextLine()
+		//displayTextLine()
 		i++;
 		it++;
 	}
@@ -65,64 +66,64 @@ bool isYellow(){
 }
 void FindPoint(){
 	while(true)
-  {
-  	 // sensor sees light:
-    if (getColorName(colorSensor) == colorBlack){
-    	motor[leftMotor]  = 55;
-    	motor[rightMotor] = -15;
-  	}
-    else{
-    	if(getColorName(colorSensor) == colorWhite){
-      // counter-steer right:
-      	motor[leftMotor]  = -15;
-     		motor[rightMotor] = 55;
+	{
+		// sensor sees light:
+		if (getColorName(colorSensor) == colorBlack){
+			motor[leftMotor]  = 55;
+			motor[rightMotor] = -15;
+		}
+		else{
+			if(getColorName(colorSensor) == colorWhite){
+				// counter-steer right:
+				motor[leftMotor]  = -15;
+				motor[rightMotor] = 55;
 			}
 			else if((getColorName(colorSensor) == colorGreen)||(getColorName(colorSensor) == colorYellow)||(getColorName(colorSensor) == colorRed)){
-    		motor[leftMotor] = 0;
-    		motor[rightMotor] = 0;
-    		break;
-    	}
-    }
-  }
+				motor[leftMotor] = 0;
+				motor[rightMotor] = 0;
+				break;
+			}
+		}
+	}
 }
 
 void intro()
 {
 	int i, j;
 	// inisialisasi array kosong
-/*	for(i=1;i<=10;i++){
-		for(j=1;j<=10;j++){
-			adjMatriks[i][j] = 0;
-		}
-		rem[i] = 99;
+	/*	for(i=1;i<=10;i++){
+	for(j=1;j<=10;j++){
+	adjMatriks[i][j] = 0;
+	}
+	rem[i] = 99;
 	}*/
 	// maju cari biru
 	setMotorSpeed(leftMotor,50);
-  setMotorSpeed(rightMotor,50);
-  while(true)
-  {
-  	if(isBlue())
-  	{
-  		break;
-  	}
+	setMotorSpeed(rightMotor,50);
+	while(true)
+	{
+		if(isBlue())
+		{
+			break;
+		}
 	}
-  while(true)
-  {
-  	if(isBlack())
-  	{
-  		break;
-  	}
+	while(true)
+	{
+		if(isBlack())
+		{
+			break;
+		}
 	}
 }
 
 void putar(int *adakiri, int *adakanan, int *adatengah, int *jmlCabang){
 	int kiri, kanan, tengah;
 	kiri = 0;
-  tengah = 0;
-  kanan = 0;
+	tengah = 0;
+	kanan = 0;
 
-  int jumlahcabang = 0;
-  // asumsi semua 90 derajat
+	int jumlahcabang = 0;
+	// asumsi semua 90 derajat
 	backward(0.3);
 	int g1 = getGyroDegrees(gyroSensor);
 	while (getGyroDegrees(gyroSensor) < (g1 + 90)){
@@ -183,28 +184,29 @@ void BFS(int Level, ElTree *E, int *Fire){
 		if(isRed()){
 			if(AnakKe(*E)==1){ // ini apaan rol
 				Anak1(T.Elm[Bapak(*E)]) = 0;
-			}else if(AnakKe(*E)==2){
+				}else if(AnakKe(*E)==2){
 				Anak2(T.Elm[Bapak(*E)]) = 0;
-			}else if(AnakKe(*E)==3){
+				}else if(AnakKe(*E)==3){
 				Anak3(T.Elm[Bapak(*E)]) = 0;
 			}
 			putar180();
+			JmlAnak(T.Elm[Bapak(*E)])--;
 			displayTextLine(1,"Cari Intersection");
 			FindPoint();
-		}else if(isYellow()){
+			}else if(isYellow()){
 			*Fire = 1;
 			putar180();
 			displayTextLine(1,"Cari Intersection");
 			FindPoint();
-		}else if(isBlue()){
+			}else if(isBlue()){
 			setMotorSpeed(leftMotor,0);
 			setMotorSpeed(rightMotor,0);
-		}else if(isGreen()){
+			}else if(isGreen()){
 			int a=0;
-		  int b=0;
-		  int c=0;
-		  int cbg=0;
-		  if(Visited(*E)==1){
+			int b=0;
+			int c=0;
+			int cbg=0;
+			if(Visited(*E)==1){
 				putar(&a,&b,&c,&cbg);
 				JmlAnak(*E) = cbg;
 				JmlAnak(T.Elm[Alamat(*E)]) = cbg;
@@ -213,10 +215,10 @@ void BFS(int Level, ElTree *E, int *Fire){
 					AddAnak(&T,E,1);
 				}
 				if(b == 1){
-				  AddAnak(&T,E,2);
+					AddAnak(&T,E,2);
 				}
 				if(c == 1){
-				  AddAnak(&T,E,3);
+					AddAnak(&T,E,3);
 				}
 				//sleep(3000);
 				displayTextLine(1,"%d  ",Anak1(T.Elm[Alamat(*E)]));
@@ -231,11 +233,11 @@ void BFS(int Level, ElTree *E, int *Fire){
 						if(Anak1(*E)==0){
 							continue;
 						}
-					}else if(j==2){
+						}else if(j==2){
 						if(Anak2(*E)==0){
 							continue;
 						}
-					}else if(j==3){
+						}else if(j==3){
 						if(Anak3(*E)==0){
 							continue;
 						}
@@ -247,18 +249,22 @@ void BFS(int Level, ElTree *E, int *Fire){
 					if(Alamat(*E) != altemp){
 						//sleep(3000);
 						BFS(Level,E,Fire);
+						//Visited(*E);
+						//Visited(T.Elm[Alamat(*E)])++;
 						MoveToParent(T,E);
 					}
 				}
 				turn1();
 				//return;
+				//Visited(*E)++;
 				Visited(*E)++;
-			}else if(Visited(*E)==0){
-			  Visited(*E)++;
-			  Visited(T.Elm[Alamat(*E)])=Visited(*E);
-			  putar180();
+				Visited(T.Elm[Alamat(*E)])++;
+				}else if(Visited(*E)==0){
+				Visited(*E)++;
+				Visited(T.Elm[Alamat(*E)])=Visited(*E);
+				putar180();
 				FindPoint();
-			}else{
+				}else{
 				int j;
 				for(j=1;j<=JmlAnak(*E);j++){
 					int altemp = Alamat(*E);
@@ -266,11 +272,11 @@ void BFS(int Level, ElTree *E, int *Fire){
 						if(Anak1(*E)==0){
 							continue;
 						}
-					}else if(j==2){
+						}else if(j==2){
 						if(Anak2(*E)==0){
 							continue;
 						}
-					}else if(j==3){
+						}else if(j==3){
 						if(Anak3(*E)==0){
 							continue;
 						}
@@ -280,6 +286,7 @@ void BFS(int Level, ElTree *E, int *Fire){
 					turn1();
 					if(Alamat(*E) == altemp){
 						BFS(Level,E,Fire);
+
 						MoveToParent(T,E);
 					}
 				}
