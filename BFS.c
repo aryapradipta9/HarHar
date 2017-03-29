@@ -15,9 +15,13 @@ void putar180();//putar di tempat
 void FindPoint();
 void BFS(int Level, ElTree *E, int *Fire);
 void turn1();
+void turn3();
 void pulang();
-Tree T;
+void putar(int sdt);
+void belokSkip(int sdt);
+void FindBlue();
 ElTree El;
+Tree T;
 int it;
 task main()
 {
@@ -44,13 +48,17 @@ task main()
 		//displayTextLine()
 		i++;
 		it++;
-		if(it>=4){
+		/*if(it>=4){
 			turn1();
-		}
+		}*/
 	}
+	FindBlue();
+	displayTextLine(9,"Pulang");
+	/*
 	if(fire==1){
+		displayTextLine(9,"Pulang");
 		pulang();
-	}
+	}*/
 }
 
 //lain-lain
@@ -198,17 +206,24 @@ void BFS(int Level, ElTree *E, int *Fire){
 			}
 			putar180();
 			JmlAnak(T.Elm[Bapak(*E)])--;
-			displayTextLine(1,"Cari Intersection");
+
 			FindPoint();
-			}else if(isYellow()){
+		}else if(isYellow()){
 			*Fire = 1;
 			putar180();
 			displayTextLine(1,"Api telah dipadamkan");
 			FindPoint();
-			}else if(isBlue()){
+			int cou;
+			/*for(cou = 0; cou < 50; cou++){
+				// bunuh semua anaknya
+				Anak1(T.Elm[cou]) = 0;
+				Anak2(T.Elm[cou]) = 0;
+				Anak3(T.Elm[cou]) = 0;
+			}*/
+		}else if(isBlue()){
 			setMotorSpeed(leftMotor,0);
 			setMotorSpeed(rightMotor,0);
-			}else if(isGreen()){
+		}else if(isGreen()){
 			int a=0;
 			int b=0;
 			int c=0;
@@ -217,25 +232,24 @@ void BFS(int Level, ElTree *E, int *Fire){
 				putar(&a,&b,&c,&cbg);
 				JmlAnak(*E) = cbg;
 				JmlAnak(T.Elm[Alamat(*E)]) = cbg;
-				displayTextLine(1,"%d  ",cbg);
+
 				if(a == 1){
 					AddAnak(&T,E,1);
+
 				}
 				if(b == 1){
-					AddAnak(&T,E,2);
-				}
-				if(c == 1){
 					AddAnak(&T,E,3);
 				}
+				if(c == 1){
+					AddAnak(&T,E,2);
+				}
 				//sleep(3000);
-				displayTextLine(1,"%d  ",Anak1(T.Elm[Alamat(*E)]));
+
 				int j;
 				for(j=1;j<=3;j++){
-
+					// loop kunjungi semua anak anaknya
 					int altemp = Alamat(*E);
-					displayTextLine(1,"%d  ",j);
-					displayTextLine(2,"%d  ",Anak1(*E));
-					displayTextLine(3,"%d  ",Alamat(*E));
+
 					if(j==1){
 						if(Anak1(*E)==0){
 							continue;
@@ -250,7 +264,8 @@ void BFS(int Level, ElTree *E, int *Fire){
 						}
 					}
 					GoToChild(T,E,j);	// go to child sepertinya tidak bekerja dengan baik dan benar sebagaimana mestinya
-					displayTextLine(4,"%d  ",Alamat(*E));
+
+					putar(50);
 					turn1();
 					//sleep(3000);
 					if(Alamat(*E) != altemp){
@@ -261,59 +276,124 @@ void BFS(int Level, ElTree *E, int *Fire){
 						MoveToParent(T,E);
 					}
 				}
+
+				putar(50);
 				turn1();
 				//return;
 				//Visited(*E)++;
 				Visited(*E)++;
 				Visited(T.Elm[Alamat(*E)])++;
 				}else if(Visited(*E)==0){
-				Visited(*E)++;
-				Visited(T.Elm[Alamat(*E)])=Visited(*E);
-				putar180();
-				FindPoint();
+					// jika cabang tersebut belum dikunjungi
+					Visited(*E)++;
+					Visited(T.Elm[Alamat(*E)])=Visited(*E);
+					putar180();
+					FindPoint();
 				}else{
 				int j;
-				for(j=1;j<=JmlAnak(*E);j++){
+
+				// kalau dia udh pernah diunjungi > 1 kali, maka gausah itung cabang anak anaknya
+				for(j=1;j<=3;j++){
 					int altemp = Alamat(*E);
 					if(j==1){
 						if(Anak1(*E)==0){
+							putar(50);
+							belokSkip(50);
+
 							continue;
 						}
-						}else if(j==2){
+					}else if(j==2){
 						if(Anak2(*E)==0){
+							if (Anak1(*E)!=0){
+							putar(50);
+						}
+							belokSkip(50);
+
 							continue;
 						}
-						}else if(j==3){
+					}else if(j==3){
 						if(Anak3(*E)==0){
+							if ((Anak1(*E)==0)&&(Anak2(*E)==0)){
+							putar(50);
+						} else if (Anak2(*E)!=0){
+						putar(50);
+					}
+							belokSkip(50);
 							continue;
 						}
 					}
+					if(j==1){
+						putar(50);
+					}else if(j==2){
+						if(Anak1(*E)!=0){
+							putar(50);
+						}
+					}else if(j==3){
+						if(Anak2(*E)!=0){
+							putar(50);
+						}
+					}
 					GoToChild(T,E,j);
-					displayTextLine(1,"%d",Alamat(*E));
-					turn1();
-					if(Alamat(*E) == altemp){
-						BFS(Level,E,Fire);
 
+
+					turn1();
+					if(Alamat(*E) != altemp){
+						BFS(Level,E,Fire);
 						MoveToParent(T,E);
-					}/*
-					if(Anak2(*E)==0 || Anak3(*E)==0){
-						int d,e,f,g;
-						putar(&d,&e,&f,&g);
-					}*/
+						FindPoint();
+						backward(0.3);
+						if(*Fire==1){
+							if(j==1){
+								Anak2(*E) = 0;
+								Anak3(*E) = 0;
+							}else if(j==2){
+								Anak1(*E) = 0;
+								Anak3(*E) = 0;
+							}else if(j==3){
+								Anak1(*E) = 0;
+								Anak2(*E) = 0;
+							}
+						}
+					}
+
 				}
+
+
+				//FindPoint();
+
+				turn1();
+				//if ((Anak3(*E) == 0) && (Anak3(*E) == 0)){
+					//turn3();
+				//}
 			}
 		}
 	}
 	//pulang
 }
+void turn3(){
+	// posisi sudah di backward
+	int g1 = getGyroDegrees(gyroSensor);
+	while (getGyroDegrees(gyroSensor) < (g1 + 90)){
+		setMotorSpeed(leftMotor,20);
+		setMotorSpeed(rightMotor,-20);
+	}
+	while (getColorName(colorSensor) != colorWhite){
+		setMotorSpeed(leftMotor,25);
+		setMotorSpeed(rightMotor,50);
+	}
+	// warna putih
+	while (getColorName(colorSensor) != colorBlack){
+		setMotorSpeed(leftMotor,25);
+		setMotorSpeed(rightMotor,50);
+	}
+	// set break
+	setMotorSpeed(leftMotor,0);
+	setMotorSpeed(rightMotor,0);
+}
 
 void turn1(){
 	// posisi sudah di backward
-	int g1 = getGyroDegrees(gyroSensor);
-	while (getGyroDegrees(gyroSensor) > (g1 - 50)){
-		setMotorSpeed(leftMotor,-20);
-		setMotorSpeed(rightMotor,20);
-	}
+
 	while (getColorName(colorSensor) != colorWhite){
 		setMotorSpeed(leftMotor,50);
 		setMotorSpeed(rightMotor,25);
@@ -358,6 +438,47 @@ void pulang(){
 	setMotorSpeed(leftMotor,0);
 	setMotorSpeed(rightMotor,0);
 
+	while(true)
+	{
+		// sensor sees light:
+		if (getColorName(colorSensor) == colorBlack){
+			motor[leftMotor]  = 55;
+			motor[rightMotor] = -15;
+		}
+		else{
+			if(getColorName(colorSensor) == colorWhite){
+				// counter-steer right:
+				motor[leftMotor]  = -15;
+				motor[rightMotor] = 55;
+			}
+			else if(getColorName(colorSensor) == colorBlue){
+				motor[leftMotor] = 0;
+				motor[rightMotor] = 0;
+				break;
+			}
+		}
+	}
+}
+
+void putar(int sdt){
+	int sudut;
+	sudut = getGyroDegrees(gyroSensor);
+	while((sudut - getGyroDegrees(gyroSensor))<=sdt){
+		setMotorSpeed(leftMotor,-20);
+		setMotorSpeed(rightMotor,20);
+	}
+
+}
+
+void belokSkip(int sdt){
+	int sudut = getGyroDegrees(gyroSensor);
+	while ((getGyroDegrees(gyroSensor)-sudut)<=sdt){
+		setMotorSpeed(leftMotor,50);
+		setMotorSpeed(rightMotor,25);
+	}
+}
+
+void FindBlue(){
 	while(true)
 	{
 		// sensor sees light:
