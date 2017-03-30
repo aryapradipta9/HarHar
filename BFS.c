@@ -20,6 +20,7 @@ void pulang();
 void putar(int sdt);
 void belokSkip(int sdt);
 void FindBlue();
+bool kunjungiLagi(ElTree titik);
 ElTree El;
 Tree T;
 int it;
@@ -51,6 +52,13 @@ task main()
 		/*if(it>=4){
 			turn1();
 		}*/
+		//pulanglompat()
+		forward(1000,milliseconds,30);
+		putar(60);
+		forward(500,milliseconds,20);
+		if(!fire){
+			putar180();
+		}
 	}
 	FindBlue();
 	displayTextLine(9,"Pulang");
@@ -273,16 +281,25 @@ void BFS(int Level, ElTree *E, int *Fire){
 						BFS(Level,E,Fire);
 						//Visited(*E);
 						//Visited(T.Elm[Alamat(*E)])++;
+
 						MoveToParent(T,E);
 					}
 				}
-
-				putar(50);
-				turn1();
-				//return;
-				//Visited(*E)++;
 				Visited(*E)++;
 				Visited(T.Elm[Alamat(*E)])++;
+				putar(50);
+				turn1();
+				if(*Fire!=1){
+					if(!kunjungiLagi(T.Elm[Bapak(*E)])){
+						displayTextLine(8,"jgn kunjungi");
+						sleep(1000);
+						displayTextLine(8,"            ");
+						return;
+					}
+				}
+				//return;
+				//Visited(*E)++;
+
 				}else if(Visited(*E)==0){
 					// jika cabang tersebut belum dikunjungi
 					Visited(*E)++;
@@ -339,6 +356,25 @@ void BFS(int Level, ElTree *E, int *Fire){
 					turn1();
 					if(Alamat(*E) != altemp){
 						BFS(Level,E,Fire);
+
+						/**** Eliminasi point ****/
+						if(JmlAnak(*E)==0){
+							if(AnakKe(*E)==1){
+								Anak1(T.Elm[Bapak(*E)]) = 0;
+							}else if(AnakKe(*E)==2){
+								Anak2(T.Elm[Bapak(*E)]) = 0;
+							}else if(AnakKe(*E)==3){
+								Anak3(T.Elm[Bapak(*E)]) = 0;
+							}
+						}
+						/**** END Eliminasi point ****/
+						if(*Fire!=1){
+							if(!kunjungiLagi(*E)){
+								displayTextLine(8,"jgn kunjungi");
+								displayTextLine(8,"            ");
+								return;
+							}
+						}
 						MoveToParent(T,E);
 						FindPoint();
 						backward(0.3);
@@ -357,19 +393,29 @@ void BFS(int Level, ElTree *E, int *Fire){
 					}
 
 				}
-
+				//revisi baru
 
 				//FindPoint();
 
 				turn1();
+				if(*Fire!=1){
+					if(!kunjungiLagi(T.Elm[Bapak(*E)])){
+						displayTextLine(8,"jgn kunjungi");
+						return;
+					}
+				}
+
 				//if ((Anak3(*E) == 0) && (Anak3(*E) == 0)){
 					//turn3();
 				//}
+				/******* TAMBAHAN HARI INI *******/
+
 			}
 		}
 	}
 	//pulang
 }
+
 void turn3(){
 	// posisi sudah di backward
 	int g1 = getGyroDegrees(gyroSensor);
@@ -499,4 +545,20 @@ void FindBlue(){
 			}
 		}
 	}
+}
+
+bool kunjungiLagi(ElTree titik){
+	bool ret;
+	if(Alamat(titik)== 0){
+		ret = false;
+	}else if(Alamat(titik)==1){//cek akar
+		ret = (!(JmlAnak(titik)==1));
+	}else if(Alamat(titik)>1){//rekurens
+		if(JmlAnak(titik)==1){
+			ret = kunjungiLagi(T.Elm[Bapak(titik)]);
+		}else{
+			ret = true;
+		}
+	}
+	return ret;
 }
