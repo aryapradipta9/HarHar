@@ -25,6 +25,7 @@ void pulanglompat(ElTree *E);
 ElTree El;
 Tree T;
 int it;
+int lvl;
 task main()
 {
 
@@ -202,6 +203,8 @@ void putar180(){
 
 void BFS(int Level, ElTree *E, int *Fire){
 	//maju
+	lvl++;
+	displayTextLine(lvl+1,"%d",AnakKe(*E));
 	FindPoint();
 	displayTextLine(1,"Cari Intersection");
 	Level--;
@@ -417,6 +420,8 @@ void BFS(int Level, ElTree *E, int *Fire){
 		}
 	}
 	//pulang
+	displayTextLine((lvl+1),"  ");
+	lvl--;
 }
 
 void turn3(){
