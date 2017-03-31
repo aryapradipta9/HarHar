@@ -21,6 +21,7 @@ void putar(int sdt);
 void belokSkip(int sdt);
 void FindBlue();
 bool kunjungiLagi(ElTree titik);
+void pulanglompat(ElTree *E);
 ElTree El;
 Tree T;
 int it;
@@ -52,7 +53,9 @@ task main()
 		/*if(it>=4){
 			turn1();
 		}*/
-		//pulanglompat()
+		if(fire){
+			pulanglompat(&El);
+		}
 		forward(1000,milliseconds,30);
 		putar(60);
 		forward(500,milliseconds,20);
@@ -561,4 +564,57 @@ bool kunjungiLagi(ElTree titik){
 		}
 	}
 	return ret;
+}
+
+void pulanglompat(ElTree *E){
+	int j;
+	if(Alamat(*E)>1){
+		FindPoint();
+		backward(0.3);
+//		turn1();//disini
+			if(AnakKe(*E)==1){
+				Anak2(T.Elm[Bapak(*E)]) = 0;
+				Anak3(T.Elm[Bapak(*E)]) = 0;
+			}else if(AnakKe(*E)==2){
+				Anak1(T.Elm[Bapak(*E)]) = 0;
+				Anak3(T.Elm[Bapak(*E)]) = 0;
+			}else if(AnakKe(*E)==3){
+				Anak1(T.Elm[Bapak(*E)]) = 0;
+				Anak2(T.Elm[Bapak(*E)]) = 0;
+			}
+
+		// kalau dia udh pernah diunjungi > 1 kali, maka gausah itung cabang anak anaknya
+		for(j=AnakKe(*E)+1;j<=3;j++){
+			int altemp = Alamat(*E);
+			if(j==1){
+				if(Anak1(T.Elm[Bapak(*E)])==0){
+					putar(50);
+					belokSkip(50);
+				}
+			}else if(j==2){
+				if(Anak2(T.Elm[Bapak(*E)])==0){
+					if (Anak1(T.Elm[Bapak(*E)])!=0){
+						putar(50);
+					}
+
+					belokSkip(50);
+				}
+			}else if(j==3){
+				if(Anak3(T.Elm[Bapak(*E)])==0){
+					if ((Anak1(T.Elm[Bapak(*E)])==0)&&(Anak2(T.Elm[Bapak(*E)])==0)){
+						putar(50);
+					} else if (Anak2(T.Elm[Bapak(*E)])!=0){
+						putar(50);
+					}
+					displayTextLine(9,"Masuk sini");
+					sleep(500);
+					displayTextLine(9,"          ");
+					belokSkip(50);
+				}
+			}
+		}
+		turn1();
+		MoveToParent(T,E);
+		pulanglompat(E);
+	}
 }
